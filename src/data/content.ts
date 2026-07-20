@@ -74,32 +74,37 @@ export const BRAND = {
 // ---------------------------------------------------------------------------
 // Footage manifest — filenames match public/footage/*.mp4 (see
 // media-inventory.md for full detail on each clip).
+//
+// All original camera audio has been physically stripped from these files
+// (re-muxed with `ffmpeg -an`, video-only streams — see render-notes.md).
+// `volume` is kept at 0 for every clip as a defensive no-op / documentation
+// of intent, not because it's doing any actual muting.
 // ---------------------------------------------------------------------------
 export const FOOTAGE = {
   armourExterior: {
     src: 'footage/armour-exterior.mp4',
     label: 'Armour Building exterior + employee walk-up',
-    volume: 0.05,
+    volume: 0,
   },
   hqReceptionReveal: {
     src: 'footage/hq-reception-reveal.mp4',
     label: 'Walk-in reveal of branded HQ reception nook',
-    volume: 0.08,
+    volume: 0,
   },
   elevatorArchivalMural: {
     src: 'footage/elevator-archival-mural.mp4',
     label: 'Elevator doors open on Armour & Company archival mural',
-    volume: 0.08,
+    volume: 0,
   },
   coreValuesWall: {
     src: 'footage/core-values-wall.mp4',
     label: 'Slow push across the physical Core Values wall',
-    volume: 0.05,
+    volume: 0,
   },
   officeCultureHoops: {
     src: 'footage/office-culture-hoops.mp4',
     label: 'Employees playing + laughing in the open office',
-    volume: 0.35,
+    volume: 0,
   },
 } as const;
 

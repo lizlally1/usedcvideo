@@ -59,7 +59,7 @@ public/
   audio/         voiceover.mp3 + music.mp3 (see public/audio/README.md)
 scripts/
   generate-voiceover.mjs            Real TTS generation (ElevenLabs/OpenAI/Polly)
-  generate-fallback-voiceover.mjs   Offline espeak-ng placeholder narration
+  generate-fallback-voiceover.mjs   Offline RHVoice placeholder narration
   generate-placeholder-music.sh     Synthesized placeholder instrumental bed
 ```
 
@@ -85,9 +85,12 @@ Three supported paths, in order of preference:
    provider's API key, then run `npm run voiceover`. No API key is ever
    hard-coded in this repo.
 2. **Offline placeholder** — `npm run voiceover:fallback` uses the
-   locally-installed `espeak-ng` to synthesize a timing-accurate but
-   clearly non-final placeholder voice (this is what ships in this repo's
-   `public/audio/voiceover.mp3` today).
+   locally-installed `RHVoice` ("bdl", a US English male voice) to
+   synthesize a timing-accurate placeholder voice — meaningfully more
+   natural than a formant synthesizer like espeak-ng, though still not a
+   top-tier neural voice (this is what ships in this repo's
+   `public/audio/voiceover.mp3` today). Requires
+   `apt-get install rhvoice rhvoice-english`.
 3. **Manual file** — record/produce narration yourself and drop it at
    `public/audio/voiceover.mp3` (151 seconds, matching
    `voiceover-timestamps.txt`).
@@ -147,10 +150,17 @@ for the exact mapping and `render-notes.md` for the FFmpeg commands used.
 
 ## Known limitations / what to swap before "final"
 
-- **Voiceover** ships as an offline `espeak-ng` placeholder — not the
-  "standard, realistic AI narration" the brief calls for. Swap in a real
-  ElevenLabs/OpenAI/Polly render before treating this as a finished
-  deliverable (see Voiceover section above).
+- **Voiceover** ships as an offline `RHVoice` placeholder — a genuine,
+  reasonably natural-sounding offline voice, but still not the top-tier
+  "standard, realistic AI narration" the brief calls for. No ElevenLabs/
+  OpenAI/Polly API key was available in this environment, and the other
+  offline neural option (Piper) needs a voice model from Hugging Face,
+  which this environment's network policy blocks. Swap in a real
+  ElevenLabs/OpenAI/Polly render (or a recorded voice) before treating
+  this as a finished deliverable (see Voiceover section above).
+- **All original footage audio has been physically stripped** — every
+  file in `public/footage/` is video-only (re-muxed with `ffmpeg -an`).
+  The only audio in the composition is narration + music.
 - **Music** ships as a synthesized placeholder ambient pad, not a licensed
   soft-instrumental-country track. Swap `public/audio/music.mp3` for a real
   licensed/royalty-free track before final delivery.

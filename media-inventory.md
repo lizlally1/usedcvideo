@@ -37,19 +37,10 @@ elsewhere:
 
 ## Audio notes
 
-All five clips retain their original camera audio in the processed
-`public/footage/*.mp4` files (untouched originals are never modified).
-Per-clip playback volume is controlled in the Remotion composition
-(`src/data/content.ts` → each footage entry's `volume`), not by stripping
-the audio at the file level:
-
-- Clips 1–4 (exterior, reception, elevator/mural, values wall): volume
-  near-zero in the mix — ambient hallway/mechanical noise only, no
-  content worth keeping.
-- Clip 5 (office culture): volume set low (not zero) — genuine laughter
-  and office chatter meaningfully sells the "authentic culture" beat, per
-  the brief's guidance to keep natural laughs/cheers when they enhance a
-  scene.
-
-No clip's original audio is used at full volume; narration and music
-always sit on top and remain dominant.
+All original camera audio has been physically removed from every clip.
+The processed copies in `public/footage/*.mp4` are video-only streams
+(re-muxed with `ffmpeg -c:v copy -an`); the untouched originals in the
+upload source are never modified. `src/data/content.ts` keeps each
+footage entry's `volume` at `0` as a defensive no-op / statement of
+intent, since there is no audio track left to adjust. The only audio in
+the final composition is the narration and music layers.

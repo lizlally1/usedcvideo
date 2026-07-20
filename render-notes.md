@@ -2,7 +2,7 @@
 
 ## Environment
 
-- Node 22, Remotion 4.0.290, ffmpeg 6.1.1, espeak-ng 1.51.
+- Node 22, Remotion 4.0.290, ffmpeg 6.1.1, RHVoice 1.8.0 (+ rhvoice-english).
 - Rendering runs headless Chrome (Remotion's bundled Chrome Headless
   Shell). This project's fonts (Oswald, Inter) are downloaded once (via
   `curl`, which trusts the proxy's CA bundle) into `public/fonts/*.woff2`,
@@ -65,10 +65,34 @@ ffmpeg -y -ss <timestamp> -i public/footage/<clip>.mp4 -frames:v 1 -q:v 2 public
   source filters (no drums, no lead, low-passed) — explicitly a
   placeholder, not licensed music.
 - `npm run voiceover:fallback` → `scripts/generate-fallback-voiceover.mjs`
-  synthesizes each narration line with `espeak-ng`, then uses `ffmpeg`'s
-  `adelay`/`amix` filters to place each line at its exact intended
-  timestamp (matching `src/data/content.ts`'s `CAPTIONS` array) inside a
-  single 151-second track.
+  synthesizes each narration line with `RHVoice-test` (voice "bdl", a US
+  English male CMU-ARCTIC-derived voice — meaningfully more natural than
+  a formant synthesizer, though still not a top-tier neural voice), then
+  uses `ffmpeg`'s `adelay`/`amix`/`loudnorm` filters to place each line at
+  its exact intended timestamp (matching `src/data/content.ts`'s
+  `CAPTIONS` array) inside a single ~151-second track. An earlier version
+  of this script used `espeak-ng`; it was replaced after the user
+  explicitly asked for a more human-sounding voice. A genuinely
+  human-sounding neural voice would require either a real ElevenLabs/
+  OpenAI/Polly API key (none was available in this environment) or a
+  local model like Piper, whose voice files are hosted on Hugging Face —
+  blocked by this environment's egress policy (a 403 on the CONNECT
+  tunnel, not something to route around).
+
+## Original footage audio removed
+
+Per an explicit follow-up request, all original camera audio was
+physically stripped from the processed footage files (not just muted in
+the mix):
+
+```bash
+ffmpeg -y -i public/footage/<clip>.mp4 -c:v copy -an public/footage/<clip>.mp4
+```
+
+Every file in `public/footage/` is now video-only. `src/data/content.ts`
+keeps each clip's `volume` at `0` as a defensive no-op / statement of
+intent. The only audio anywhere in the final composition is the
+narration and music layers.
 - `npm run voiceover` → `scripts/generate-voiceover.mjs` calls a real TTS
   provider (ElevenLabs / OpenAI TTS / Amazon Polly) when credentials are
   present in `.env`. Not used for this delivered render (no API key was
