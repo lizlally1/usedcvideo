@@ -2,20 +2,31 @@
 /**
  * Offline placeholder narration generator using RHVoice + ffmpeg.
  *
- * RHVoice's "bdl" voice (US English male, CMU-ARCTIC derived) is a
- * genuine unit-selection/statistical-parametric TTS voice — meaningfully
- * more natural and human-sounding than a formant synthesizer like
- * espeak-ng, fully offline, no API key, and unrelated to Higgsfield. It
- * is still not a top-tier neural voice (ElevenLabs/OpenAI/Polly), so this
- * remains a placeholder: see scripts/generate-voiceover.mjs for the real
- * cloud-TTS path once an API key is available.
+ * IMPORTANT: RHVoice (like espeak-ng) is a synthetic-sounding voice. It is
+ * NOT a substitute for a real neural TTS provider (ElevenLabs, OpenAI TTS,
+ * Amazon Polly) when the goal is a genuinely human-sounding narration —
+ * see scripts/generate-voiceover.mjs and README.md for that path once an
+ * API key is available. This script exists purely so the project has
+ * *some* correctly-timed spoken narration to preview/render with when no
+ * such key is configured.
+ *
+ * Each line in src/data/narration-lines.json is synthesized separately,
+ * its ACTUAL rendered duration is measured with ffprobe, and lines are
+ * placed sequentially (previous line's end + a fixed pause) rather than
+ * at hand-authored guessed timestamps. This is a hard requirement, not a
+ * style choice: an earlier version of this script used fixed timestamps
+ * that didn't match this voice's real speaking duration, and three lines
+ * ended up overlapping the next line's start — i.e. two lines of
+ * narration audibly playing over each other. Computing timing from the
+ * real synthesized audio makes that class of bug impossible.
+ *
+ * The computed timing is written to src/data/narration-timing.json, which
+ * src/data/content.ts imports directly for the CAPTIONS track — so
+ * captions are always in sync with whatever audio this script most
+ * recently produced. voiceover-timestamps.txt is regenerated too.
  *
  * Requires `RHVoice-test` and `ffmpeg` on PATH
  * (apt install rhvoice rhvoice-english).
- *
- * Lines + timestamps mirror src/data/content.ts CAPTIONS exactly — if you
- * change the narration timing there, update LINES below to match (and vice
- * versa), so captions and this fallback stay in sync.
  */
 
 import {execSync} from 'node:child_process';
@@ -26,37 +37,30 @@ import {fileURLToPath} from 'node:url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-const OUTPUT_PATH = path.join(ROOT, 'public', 'audio', 'voiceover.mp3');
+const LINES_PATH = path.join(ROOT, 'src', 'data', 'narration-lines.json');
+const TIMING_OUTPUT_PATH = path.join(ROOT, 'src', 'data', 'narration-timing.json');
+const AUDIO_OUTPUT_PATH = path.join(ROOT, 'public', 'audio', 'voiceover.mp3');
+const TIMESTAMPS_TXT_PATH = path.join(ROOT, 'voiceover-timestamps.txt');
+
 const TOTAL_DURATION_SECONDS = 151;
 const VOICE = 'bdl'; // US English male
 const SAMPLE_RATE = 24000;
-
-const LINES = [
-  {start: 3.0, text: 'Some companies are built overnight. Others are built over decades. One well, one partnership, one decision at a time.'},
-  {start: 9.5, text: 'This is one of those stories.'},
-  {start: 13.0, text: 'In nineteen eighty, U.S. Energy Development Corporation started as a family vision. A small operator working the Appalachian basin out of Buffalo, New York.'},
-  {start: 22.0, text: 'Built on hard work. And a simple belief. Treat people right, manage risk wisely, and a good idea can grow into something lasting.'},
-  {start: 33.0, text: 'That belief carried the company forward. Through the eighties and nineties, U.S. Energy expanded into Texas, Louisiana, Kansas, and beyond.'},
-  {start: 43.5, text: 'In twenty fourteen, a second generation of leadership stepped in. By twenty fifteen, growth had carried the company to Texas, right as one of the most transformative eras in American energy was taking shape.'},
-  {start: 57.5, text: 'Today, that experience speaks for itself.'},
-  {start: 61.0, text: 'U.S. Energy has invested in, operated, or drilled nearly four thousand wells across thirteen states and Canada. Deploying billions on behalf of the company and its partners.'},
-  {start: 74.0, text: 'And in twenty twenty five, the company completed the largest acquisition in its history.'},
-  {start: 79.0, text: "But growth was never the whole story. Ask anyone here, and they'll tell you. It's the people."},
-  {start: 86.0, text: "It's a team that shows up for each other. Collaborative. Sincere. Driven to do the work right."},
-  {start: 95.0, text: 'Investors come first. Partners are treated like family. And every deal, every well, every decision reflects the same values that have guided this company since day one.'},
-  {start: 111.0, text: 'In twenty twenty five, that history found a new home. U.S. Energy moved its headquarters into the historic Armour Building, in the Fort Worth Stockyards.'},
-  {start: 121.5, text: 'A building with its own story of resilience. For a company that has never forgotten where it came from.'},
-  {start: 132.0, text: "Forty five years in, U.S. Energy is still doing what it's always done. Backing good people, taking calculated risks, and building for what's next."},
-  {start: 143.0, text: 'The experience is behind them.'},
-  {start: 147.5, text: 'The opportunity is just getting started.'},
-];
+const LEAD_IN_SECONDS = 3.0; // silence before the first line starts
+const GAP_SECONDS = 0.65; // breathing room between consecutive lines
 
 function sh(cmd) {
-  execSync(cmd, {stdio: ['ignore', 'pipe', 'inherit']});
+  return execSync(cmd, {stdio: ['ignore', 'pipe', 'inherit']}).toString();
+}
+
+function ffprobeDuration(file) {
+  const out = execSync(
+    `ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "${file}"`,
+  ).toString();
+  return parseFloat(out);
 }
 
 function main() {
-  for (const bin of ['RHVoice-test', 'ffmpeg']) {
+  for (const bin of ['RHVoice-test', 'ffmpeg', 'ffprobe']) {
     try {
       execSync(`which ${bin}`, {stdio: 'ignore'});
     } catch {
@@ -66,37 +70,82 @@ function main() {
     }
   }
 
+  const lines = JSON.parse(fs.readFileSync(LINES_PATH, 'utf-8'));
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'usedc-vo-'));
+
+  let cursor = LEAD_IN_SECONDS;
+  const timing = [];
   const wavFiles = [];
 
-  LINES.forEach((line, i) => {
+  lines.forEach((line, i) => {
     const txtPath = path.join(tmpDir, `line-${i}.txt`);
     const wavPath = path.join(tmpDir, `line-${i}.wav`);
     fs.writeFileSync(txtPath, line.text, 'utf-8');
-    sh(
-      `RHVoice-test -p ${VOICE} -R ${SAMPLE_RATE} -r 95 -i "${txtPath}" -o "${wavPath}"`,
-    );
+    sh(`RHVoice-test -p ${VOICE} -R ${SAMPLE_RATE} -r 95 -i "${txtPath}" -o "${wavPath}"`);
+
+    const duration = ffprobeDuration(wavPath);
+    const start = cursor;
+    const end = start + duration;
+    timing.push({start: round2(start), end: round2(end), text: line.text});
     wavFiles.push(wavPath);
+    cursor = end + GAP_SECONDS;
   });
 
-  // Build one ffmpeg filter graph: delay each line to its start time (ms),
-  // then mix all delayed lines together into a single track of the full
-  // composition length.
-  const inputs = wavFiles.map((f) => `-i "${f}"`).join(' ');
-  const delayFilters = LINES.map(
-    (line, i) => `[${i}:a]adelay=${Math.round(line.start * 1000)}|${Math.round(line.start * 1000)}[a${i}]`,
-  ).join(';');
-  const mixInputs = LINES.map((_, i) => `[a${i}]`).join('');
-  const filterComplex = `${delayFilters};${mixInputs}amix=inputs=${LINES.length}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,apad=whole_dur=${TOTAL_DURATION_SECONDS}[out]`;
+  const finalEnd = timing[timing.length - 1].end;
+  if (finalEnd > TOTAL_DURATION_SECONDS - 1) {
+    console.error(
+      `Narration (ends at ${finalEnd.toFixed(1)}s) doesn't fit inside the ${TOTAL_DURATION_SECONDS}s video with a 1s safety margin. Shorten the script or lengthen the video.`,
+    );
+    process.exit(1);
+  }
 
-  fs.mkdirSync(path.dirname(OUTPUT_PATH), {recursive: true});
+  // Each line gets adelay'd to its own computed (non-overlapping-by-construction) start time.
+  const inputs = wavFiles.map((f) => `-i "${f}"`).join(' ');
+  const delayFilters = timing
+    .map((t, i) => `[${i}:a]adelay=${Math.round(t.start * 1000)}|${Math.round(t.start * 1000)}[a${i}]`)
+    .join(';');
+  const mixInputs = timing.map((_, i) => `[a${i}]`).join('');
+  const filterComplex = `${delayFilters};${mixInputs}amix=inputs=${timing.length}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,apad=whole_dur=${TOTAL_DURATION_SECONDS}[out]`;
+
+  fs.mkdirSync(path.dirname(AUDIO_OUTPUT_PATH), {recursive: true});
   sh(
-    `ffmpeg -y ${inputs} -filter_complex "${filterComplex}" -map "[out]" -t ${TOTAL_DURATION_SECONDS} -ar 44100 -b:a 160k "${OUTPUT_PATH}"`,
+    `ffmpeg -y ${inputs} -filter_complex "${filterComplex}" -map "[out]" -t ${TOTAL_DURATION_SECONDS} -ar 44100 -b:a 160k "${AUDIO_OUTPUT_PATH}"`,
   );
 
+  fs.writeFileSync(TIMING_OUTPUT_PATH, JSON.stringify(timing, null, 2) + '\n');
+  fs.writeFileSync(TIMESTAMPS_TXT_PATH, renderTimestampsTxt(timing));
   fs.rmSync(tmpDir, {recursive: true, force: true});
-  console.log(`Wrote placeholder narration to ${OUTPUT_PATH}`);
-  console.log('Reminder: this is an offline RHVoice placeholder voice, not a top-tier neural narration.');
+
+  console.log(`Wrote placeholder narration to ${AUDIO_OUTPUT_PATH} (ends at ${finalEnd.toFixed(1)}s, no overlaps).`);
+  console.log(`Wrote caption timing to ${TIMING_OUTPUT_PATH} (src/data/content.ts imports this for CAPTIONS).`);
+  console.log(`Wrote ${TIMESTAMPS_TXT_PATH}.`);
+  console.log('Reminder: RHVoice is an offline placeholder voice, not a human-sounding neural narration.');
+}
+
+function round2(n) {
+  return Math.round(n * 100) / 100;
+}
+
+function fmtTime(seconds) {
+  const m = Math.floor(seconds / 60);
+  const s = (seconds % 60).toFixed(2).padStart(5, '0');
+  return `${String(m).padStart(2, '0')}:${s}`;
+}
+
+function renderTimestampsTxt(timing) {
+  const header = `U.S. ENERGY DEVELOPMENT CORPORATION — VOICEOVER TIMESTAMPS
+Auto-generated by scripts/generate-fallback-voiceover.mjs from the ACTUAL
+synthesized audio (RHVoice "bdl") — every line's start/end below is the
+real timing baked into public/audio/voiceover.mp3, not an estimate. If you
+swap in a different narration file, re-run whichever generator script
+produced it so this file and src/data/narration-timing.json (which drives
+the on-screen CAPTIONS track) stay in sync with the actual audio.
+
+`;
+  const body = timing
+    .map((t) => `[${fmtTime(t.start)} - ${fmtTime(t.end)}]  ${t.text}`)
+    .join('\n\n');
+  return header + body + '\n';
 }
 
 main();

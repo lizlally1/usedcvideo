@@ -125,6 +125,29 @@ caption's semi-transparent background. Fixed by raising the captions
 track's vertical position (`bottom: 360`) to clear the 340px-tall
 lower-third scrim band in every scene — see `src/components/Captions.tsx`.
 
+## Bug: narration lines audibly overlapping ("talking over each other")
+
+The original fallback voiceover generator placed each narration line at a
+hand-authored fixed timestamp (e.g. line 3 at `13.0s`, line 4 at `22.0s`),
+picked when the script was written based on a rough word-count estimate —
+before any of it had actually been synthesized. Once real audio existed,
+three of the seventeen lines turned out to run longer than the gap to the
+next line's fixed start time (by 0.5–1.8 seconds each), so the next
+line's speech began while the previous one was still playing — audibly
+two voices/lines on top of each other.
+
+Fix: both `scripts/generate-fallback-voiceover.mjs` and
+`scripts/generate-voiceover.mjs` now synthesize each line individually,
+measure its *actual* rendered duration with `ffprobe`, and place lines
+sequentially — `next.start = previous.end + 0.65s` — so overlap is
+impossible by construction regardless of how fast or slow a given voice
+happens to speak. The computed timing is written to
+`src/data/narration-timing.json`, which `src/data/content.ts` imports
+directly for the `CAPTIONS` track (replacing a previously hand-authored,
+now-provably-inaccurate array), and to `voiceover-timestamps.txt`. Verified
+programmatically after the fix (`timing[i].end <= timing[i+1].start` for
+every consecutive pair) before re-rendering.
+
 ## Bugs found only in the full render (not caught by spot-check stills)
 
 The first successful full render (151s, 76.6MB) surfaced two more issues
