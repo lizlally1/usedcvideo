@@ -1,0 +1,68 @@
+U.S. ENERGY DEVELOPMENT CORPORATION — VOICEOVER TIMESTAMPS
+Frame rate: 30fps | Total runtime: 151s (4530 frames)
+Format: [mm:ss.ms] (frame) — line
+
+These timestamps mark the intended START of each narration line against
+the scene timing plan in src/data/content.ts. They are authoring targets
+for recording/TTS generation and for syncing the optional caption track
+(src/components/Captions.tsx) — adjust to the actual recorded audio's
+waveform once a final voiceover file is produced.
+
+--------------------------------------------------
+[00:03.00] (90)   Some companies are built overnight. Others are built
+                  over decades — one well, one partnership, one
+                  decision at a time.
+[00:09.50] (285)  This is one of those stories.
+
+--------------------------------------------------
+[00:13.00] (390)  In 1980, U.S. Energy Development Corporation started
+                  as a family vision — a small operator working the
+                  Appalachian basin out of Buffalo, New York.
+[00:22.00] (660)  Built on hard work. And a simple belief: treat
+                  people right, manage risk wisely, and a good idea
+                  can grow into something lasting.
+
+--------------------------------------------------
+[00:33.00] (990)  That belief carried the company forward. Through
+                  the eighties and nineties, U.S. Energy expanded
+                  into Texas, Louisiana, Kansas, and beyond.
+[00:43.50] (1305) In 2014, a second generation of leadership stepped
+                  in. And by 2015, growth had carried the company to
+                  Texas — right as one of the most transformative
+                  eras in American energy was taking shape.
+
+--------------------------------------------------
+[00:57.50] (1725) Today, that experience speaks for itself.
+[01:01.00] (1830) U.S. Energy has invested in, operated, or drilled
+                  nearly four thousand wells across thirteen states
+                  and Canada — deploying billions of dollars on
+                  behalf of the company and its partners, with a
+                  major presence across the country's leading basins.
+[01:14.00] (2220) And in 2025, the company completed the largest
+                  acquisition in its history.
+
+--------------------------------------------------
+[01:19.00] (2370) But growth was never the whole story. Ask anyone
+                  here, and they'll tell you — it's the people.
+[01:26.00] (2580) It's a team that shows up for each other.
+                  Collaborative. Sincere. Driven to do the work right.
+[01:35.00] (2850) Investors come first. Partners are treated like
+                  family. And every deal, every well, every decision
+                  reflects the same values that have guided this
+                  company since day one.
+
+--------------------------------------------------
+[01:51.00] (3330) In 2025, that history found a new home. U.S. Energy
+                  moved its headquarters into the historic Armour
+                  Building, in the heart of the Fort Worth Stockyards.
+[02:01.50] (3645) A building with its own story of resilience — for a
+                  company that has never forgotten where it came from.
+
+--------------------------------------------------
+[02:12.00] (3960) Forty-five years in, U.S. Energy is still doing what
+                  it's always done: backing good people, taking
+                  calculated risks, and building for what's next.
+[02:23.00] (4290) The experience is behind them.
+[02:26.50] (4395) The opportunity is just getting started.
+
+[02:31.00] (4530) — END —

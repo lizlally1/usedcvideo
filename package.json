@@ -1,0 +1,29 @@
+{
+  "name": "usedc-brand-video",
+  "version": "1.0.0",
+  "private": true,
+  "description": "U.S. Energy Development Corporation brand video — Remotion project",
+  "scripts": {
+    "start": "remotion studio src/index.ts",
+    "preview": "remotion studio src/index.ts",
+    "build": "remotion render src/index.ts USEDCBrandVideo out/usedc-brand-video.mp4",
+    "render:draft": "remotion render src/index.ts USEDCBrandVideo out/usedc-brand-video-draft.mp4 --scale=0.5 --jpeg-quality=70",
+    "still": "remotion still src/index.ts USEDCBrandVideo out/thumbnail.png",
+    "voiceover": "node scripts/generate-voiceover.mjs",
+    "voiceover:fallback": "node scripts/generate-fallback-voiceover.mjs",
+    "music:placeholder": "bash scripts/generate-placeholder-music.sh",
+    "upgrade": "remotion upgrade",
+    "typecheck": "tsc -noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.290",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "remotion": "4.0.290"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "typescript": "5.6.3"
+  }
+}
