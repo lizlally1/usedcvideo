@@ -9,7 +9,7 @@
     "build": "remotion render src/index.ts USEDCBrandVideo out/usedc-brand-video.mp4",
     "render:draft": "remotion render src/index.ts USEDCBrandVideo out/usedc-brand-video-draft.mp4 --scale=0.5 --jpeg-quality=70",
     "still": "remotion still src/index.ts USEDCBrandVideo out/thumbnail.png",
-    "voiceover": "node scripts/generate-voiceover.mjs",
+    "voiceover": "NODE_USE_ENV_PROXY=1 node scripts/generate-voiceover.mjs",
     "voiceover:fallback": "node scripts/generate-fallback-voiceover.mjs",
     "music:placeholder": "bash scripts/generate-placeholder-music.sh",
     "upgrade": "remotion upgrade",
