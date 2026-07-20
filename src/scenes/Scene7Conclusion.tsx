@@ -21,6 +21,7 @@ export const Scene7Conclusion: React.FC = () => {
       <TitleCard
         title={CONCLUSION_TEXT.years}
         appearAt={160}
+        holdFrames={110}
         accent="gold"
       />
       <ClosingLines />

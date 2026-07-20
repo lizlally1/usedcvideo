@@ -45,7 +45,9 @@ export const Timeline: React.FC<TimelineProps> = ({
         position: 'absolute',
         left: 140,
         right: 140,
-        top: '50%',
+        // Sits above vertical-center so labels never reach into the
+        // bottom caption band (see Captions.tsx).
+        top: '38%',
         transform: 'translateY(-50%)',
       }}
     >

@@ -101,6 +101,41 @@ caption's semi-transparent background. Fixed by raising the captions
 track's vertical position (`bottom: 360`) to clear the 340px-tall
 lower-third scrim band in every scene — see `src/components/Captions.tsx`.
 
+## Bugs found only in the full render (not caught by spot-check stills)
+
+The first successful full render (151s, 76.6MB) surfaced two more issues
+that isolated `remotion still` frames during development hadn't hit,
+because they only appear when specific scenes' animated elements coincide
+with the (independently-timed) caption track:
+
+1. **Center-screen content colliding with captions.** `Timeline.tsx` and
+   `Statistic.tsx` both vertically centered their content (`top: '50%'`),
+   and Scene 2's year/headline reveal used flex `justifyContent: 'center'`
+   on a full-height `AbsoluteFill`. Each one's label text could reach
+   about halfway into the bottom third of the frame — overlapping the
+   captions track, which appears independently of scene boundaries.
+   Fixed by biasing all three up (`top: '38%'`, or `paddingBottom: 260` on
+   the flex container for Scene 2) so their content stays clear of the
+   caption band regardless of which caption line happens to be showing at
+   the time.
+2. **Scene 7's "45+ Years of Energy and Impact" title never faded out.**
+   `TitleCard` only had a fade-*in*; once shown it stayed at full opacity
+   for the rest of its Sequence. In Scene 1 and Scene 6 that's fine (the
+   parent layer unmounts before anything else would overlap it), but in
+   Scene 7 the closing lines ("Experience Behind Us." / "Opportunity
+   Ahead.") and the closing logo are separate sibling elements timed to
+   appear later in the *same* scene — they rendered on top of the
+   still-visible year title, producing overlapping/double-exposed text.
+   Fixed by adding an optional `holdFrames` prop to `TitleCard` (fades out
+   `holdFrames` after appearing, mirroring `LowerThird`'s pattern) and
+   passing one in `Scene7Conclusion.tsx` so the year title clears before
+   the closing lines begin.
+
+Both were confirmed via `ffmpeg -ss <t> -frames:v 1` spot-checks against
+the actual rendered MP4 (not just `remotion still` previews) at several
+timestamps spanning all seven scenes, then re-verified after the fix
+before re-rendering the final delivered file.
+
 ## A bug fixed during rendering: font-load timeout under concurrent render
 
 The first two full-render attempts failed (at frames 105 and 866

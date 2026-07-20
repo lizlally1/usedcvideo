@@ -49,7 +49,10 @@ const YearReveal: React.FC = () => {
     <AbsoluteFill
       style={{
         alignItems: 'center',
+        // Biased above vertical-center (rather than true center) so the
+        // headline never reaches into the bottom caption band.
         justifyContent: 'center',
+        paddingBottom: 260,
         flexDirection: 'column',
       }}
     >

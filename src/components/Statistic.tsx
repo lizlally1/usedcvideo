@@ -33,7 +33,9 @@ export const StatisticRow: React.FC<StatisticRowProps> = ({
         position: 'absolute',
         left: 0,
         right: 0,
-        top: '50%',
+        // Sits above vertical-center so labels never reach into the
+        // bottom caption band (see Captions.tsx).
+        top: '38%',
         transform: 'translateY(-50%)',
         display: 'flex',
         justifyContent: 'center',

@@ -8,6 +8,10 @@ interface TitleCardProps {
   appearAt?: number;
   align?: 'center' | 'left';
   accent?: 'gold' | 'red';
+  /** If set, the card fades out this many frames after appearing instead
+   * of staying visible for the rest of its Sequence. Omit to keep the
+   * card visible indefinitely (e.g. when its parent layer unmounts it). */
+  holdFrames?: number;
 }
 
 /**
@@ -21,20 +25,26 @@ export const TitleCard: React.FC<TitleCardProps> = ({
   appearAt = 0,
   align = 'center',
   accent = 'gold',
+  holdFrames,
 }) => {
   const frame = useCurrentFrame();
   const local = frame - appearAt;
 
-  const opacity = interpolate(local, [0, 20], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
+  const opacity = holdFrames
+    ? interpolate(local, [0, 20, holdFrames, holdFrames + 20], [0, 1, 1, 0], {
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp',
+      })
+    : interpolate(local, [0, 20], [0, 1], {
+        extrapolateLeft: 'clamp',
+        extrapolateRight: 'clamp',
+      });
   const slideY = interpolate(local, [0, 20], [24, 0], {
     extrapolateLeft: 'clamp',
     extrapolateRight: 'clamp',
   });
 
-  if (local < 0) return null;
+  if (local < 0 || opacity <= 0) return null;
 
   return (
     <div
