@@ -193,6 +193,15 @@ async function synthElevenLabs(text, outPath) {
   fs.writeFileSync(outPath, Buffer.from(await res.arrayBuffer()));
 }
 
+// Steers gpt-4o-mini-tts's delivery style — matches the creative brief's
+// voice direction (warm, confident, calm, conversational; no announcer
+// cadence, no exaggerated accent, no movie-trailer delivery).
+const OPENAI_TTS_INSTRUCTIONS =
+  'Speak in a warm, calm, confident American voice, like a person ' +
+  'sincerely telling a story about a company they respect — not an ' +
+  'announcer or a movie trailer. Conversational pacing with natural ' +
+  'pauses between sentences, no exaggerated regional accent.';
+
 async function synthOpenAI(text, outPath) {
   const apiKey = process.env.OPENAI_API_KEY;
   const voice = process.env.OPENAI_TTS_VOICE || 'onyx';
@@ -203,7 +212,13 @@ async function synthOpenAI(text, outPath) {
   const res = await fetch('https://api.openai.com/v1/audio/speech', {
     method: 'POST',
     headers: {Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json'},
-    body: JSON.stringify({model: 'gpt-4o-mini-tts', voice, input: text, format: 'mp3'}),
+    body: JSON.stringify({
+      model: 'gpt-4o-mini-tts',
+      voice,
+      input: text,
+      instructions: OPENAI_TTS_INSTRUCTIONS,
+      format: 'mp3',
+    }),
   });
   if (!res.ok) {
     console.error(`OpenAI TTS error: ${res.status} ${await res.text()}`);
