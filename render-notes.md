@@ -1,5 +1,22 @@
 # Render Notes
 
+## Audio and captions removed
+
+By request, `src/Video.tsx` no longer renders `<Audio>` or `<Captions>`
+layers, and the corresponding `AUDIO`/`CAPTIONS`/`CAPTIONS_ENABLED` exports
+and `src/components/Captions.tsx` were removed from `src/data/content.ts`
+and `src/components/` respectively (they're unused dead code once nothing
+in `Video.tsx` references them). The underlying narration/music assets and
+generator scripts were left in place — see README's "Audio and captions
+were removed" section.
+
+One thing worth knowing if this gets re-enabled or re-rendered: `npx
+remotion render` mux a silent AAC audio track into its output MP4 by
+default even when the composition has zero `<Audio>` components. The
+delivered `out/armour-building-film.mp4` has that silent track stripped
+with a lossless remux (`ffmpeg -c:v copy -an`) so the file has no audio
+stream at all, rather than shipping an inaudible-but-present one.
+
 ## Environment
 
 - Node 22, Remotion 4.0.290, ffmpeg 6.1.1, RHVoice 1.8.0 (+ rhvoice-english),
