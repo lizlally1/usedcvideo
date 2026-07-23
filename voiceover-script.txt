@@ -1,83 +1,69 @@
-U.S. ENERGY DEVELOPMENT CORPORATION — BRAND VIDEO
-VOICEOVER SCRIPT (Final)
-Target runtime: 2:31 (151 seconds) | Word count: ~345 words
-Voice direction: warm, confident American voice. Calm, conversational pacing.
-No announcer cadence, no cowboy accent, no movie-trailer delivery.
+THE ARMOUR BUILDING — U.S. ENERGY DEVELOPMENT CORPORATION
+VOICEOVER SCRIPT
+Runtime: 2:25 (145 seconds) | Word count: ~340 words
+Voice direction: mature, confident, inspiring narrator — warm and premium
+corporate, not an announcer or movie-trailer delivery. See storyboard.md
+for why the final runtime landed at 2:25 rather than the brief's nominal
+2:00 (the full script simply takes longer than that to narrate naturally).
+This is the same script supplied in the creative brief, split into shorter
+spoken lines for pacing — see src/data/narration-lines.json for the exact
+lines each generator script synthesizes from.
 
 --------------------------------------------------
-SCENE 1 — OPENING (0:00–0:12)
+SCENE 1 — THE RISE OF THE FORT WORTH STOCKYARDS (0:00–0:27)
 --------------------------------------------------
-Some companies are built overnight. Others are built over decades —
-one well, one partnership, one decision at a time.
-
-This is one of those stories.
-
---------------------------------------------------
-SCENE 2 — THE BEGINNING (0:12–0:32)
---------------------------------------------------
-In 1980, U.S. Energy Development Corporation started as a family
-vision — a small operator working the Appalachian basin out of
-Buffalo, New York.
-
-Built on hard work. And a simple belief: treat people right, manage
-risk wisely, and a good idea can grow into something lasting.
+By the late 1800s, the Fort Worth Stockyards had become one of America's
+most important livestock trading centers. Railroads transformed Fort Worth
+into the gateway of the cattle industry, earning the city its legendary
+reputation as Cowtown. For generations, millions of cattle passed through
+these historic grounds, helping shape the economy of Texas and the
+American West.
 
 --------------------------------------------------
-SCENE 3 — GROWTH THROUGH THE DECADES (0:32–0:56)
+SCENE 2 — THE ARMOUR BUILDING (0:27–1:01)
 --------------------------------------------------
-That belief carried the company forward. Through the eighties and
-nineties, U.S. Energy expanded into Texas, Louisiana, Kansas, and
-beyond.
+In the early twentieth century, the Armour Building was constructed to
+serve Armour and Company, one of the nation's largest meatpacking
+operations. Built with remarkable craftsmanship and designed to support
+the thriving livestock industry, the building became an enduring symbol of
+the Stockyards' industrial legacy.
 
-In 2014, a second generation of leadership stepped in. And by 2015,
-growth had carried the company to Texas — right as one of the most
-transformative eras in American energy was taking shape.
-
---------------------------------------------------
-SCENE 4 — SUCCESS AND EXPERIENCE (0:56–1:18)
---------------------------------------------------
-Today, that experience speaks for itself.
-
-U.S. Energy has invested in, operated, or drilled nearly four
-thousand wells across thirteen states and Canada — deploying
-billions of dollars on behalf of the company and its partners,
-with a major presence across the country's leading basins.
-
-And in 2025, the company completed the largest acquisition in its
-history.
+Even more remarkably, many of the craftsmen whose families originally laid
+the building's brick generations ago returned decades later to assist in
+its careful reconstruction during U.S. Energy's renovation — helping
+preserve an important piece of Fort Worth history.
 
 --------------------------------------------------
-SCENE 5 — THE PEOPLE AND CORE VALUES (1:18–1:50)
+SCENE 3 — HONORING THE ORIGINAL STRUCTURE (1:01–1:34)
 --------------------------------------------------
-But growth was never the whole story. Ask anyone here, and they'll
-tell you — it's the people.
+Throughout the renovation, preserving the building's historic character
+remained a guiding principle. One of its most distinctive architectural
+features — the original white structural beams — remain exactly as they
+were when the building was first constructed. They continue to tell the
+story of the craftsmanship that has endured for more than a century.
 
-It's a team that shows up for each other. Collaborative. Sincere.
-Driven to do the work right.
-
-Investors come first. Partners are treated like family. And every
-deal, every well, every decision reflects the same values that have
-guided this company since day one.
-
---------------------------------------------------
-SCENE 6 — THE FORT WORTH STOCKYARDS (1:50–2:11)
---------------------------------------------------
-In 2025, that history found a new home. U.S. Energy moved its
-headquarters into the historic Armour Building, in the heart of the
-Fort Worth Stockyards.
-
-A building with its own story of resilience — for a company that
-has never forgotten where it came from.
+Today, the Armour Building also features a state-of-the-art fitness center
+with a dedicated personal trainer, welcoming employees of both the Armour
+Building and U.S. Energy, along with members of the Fort Worth Police
+Department.
 
 --------------------------------------------------
-SCENE 7 — CONCLUSION (2:11–2:31)
+SCENE 4 — A NEW HOME FOR U.S. ENERGY (1:34–2:25)
 --------------------------------------------------
-Forty-five years in, U.S. Energy is still doing what it's always
-done: backing good people, taking calculated risks, and building for
-what's next.
+Today, the Armour Building stands as the proud home of U.S. Energy
+Development Corporation — a place where history and innovation come
+together.
 
-The experience is behind them.
+More than simply an office, this headquarters serves as a destination for
+investors, partners, and clients visiting one of Texas' most iconic
+landmarks. Elegant conference rooms and versatile event spaces create an
+environment where relationships are built, ideas are shared, and
+opportunities take shape.
 
-The opportunity is just getting started.
+As we continue growing, this remarkable building reflects who we are:
+honoring our heritage while investing boldly in the future. We believe
+this headquarters is more than a workplace — it is a beacon that welcomes
+clients, inspires employees, and positions U.S. Energy for continued
+success for generations to come.
 
 [END]

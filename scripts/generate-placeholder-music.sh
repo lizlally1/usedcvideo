@@ -13,7 +13,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 OUT=public/audio/music.mp3
-DURATION=155
+DURATION=145
 
 # Three soft, slightly-detuned sine layers (a gentle triad) with a slow
 # amplitude swell, standing in for a warm ambient pad. No drums, no lead,

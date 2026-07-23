@@ -12,22 +12,16 @@ import {
 import {colors} from './styles/theme';
 import {Captions} from './components/Captions';
 
-import {Scene1Opening} from './scenes/Scene1Opening';
-import {Scene2Beginning} from './scenes/Scene2Beginning';
-import {Scene3Growth} from './scenes/Scene3Growth';
-import {Scene4Success} from './scenes/Scene4Success';
-import {Scene5People} from './scenes/Scene5People';
-import {Scene6Stockyards} from './scenes/Scene6Stockyards';
-import {Scene7Conclusion} from './scenes/Scene7Conclusion';
+import {Scene1Stockyards} from './scenes/Scene1Stockyards';
+import {Scene2ArmourBuilding} from './scenes/Scene2ArmourBuilding';
+import {Scene3HonoringStructure} from './scenes/Scene3HonoringStructure';
+import {Scene4NewHome} from './scenes/Scene4NewHome';
 
 const SCENE_COMPONENTS: Record<string, React.FC> = {
-  opening: Scene1Opening,
-  beginning: Scene2Beginning,
-  growth: Scene3Growth,
-  success: Scene4Success,
-  people: Scene5People,
-  stockyards: Scene6Stockyards,
-  conclusion: Scene7Conclusion,
+  stockyards: Scene1Stockyards,
+  armourBuilding: Scene2ArmourBuilding,
+  honoringStructure: Scene3HonoringStructure,
+  newHome: Scene4NewHome,
 };
 
 /** Derives each scene's absolute frame offset from SCENES durations. */
@@ -42,7 +36,7 @@ const getSceneOffsets = () => {
   return offsets;
 };
 
-export const USEDCBrandVideo: React.FC = () => {
+export const ArmourBuildingFilm: React.FC = () => {
   const offsets = getSceneOffsets();
 
   return (

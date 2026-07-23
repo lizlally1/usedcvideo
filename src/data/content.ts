@@ -1,10 +1,9 @@
 /**
- * Centralized content + timing configuration for the U.S. Energy brand video.
- *
- * Every fact, date, statistic, and on-screen line of copy lives here so the
- * story can be edited without touching any animation/component code. See
- * sources.md for citations behind each fact, and storyboard.md for the
- * scene-by-scene visual plan this file's timings correspond to.
+ * Centralized content + timing configuration for the Armour Building brand
+ * film. Every fact, date, on-screen line of copy, and scene duration lives
+ * here so the story can be edited without touching any animation/component
+ * code. See sources.md for citations behind each fact, and storyboard.md
+ * for the scene-by-scene visual plan this file's timings correspond to.
  */
 
 export const FPS = 30;
@@ -15,27 +14,34 @@ export const HEIGHT = 1080;
 // Scene timing (seconds). Changing a duration here reflows every scene after
 // it automatically — see src/Video.tsx, which derives frame offsets from this
 // array rather than hardcoding them.
+//
+// These durations were set AFTER generating the real narration audio (see
+// npm run voiceover:fallback) and reading its measured per-line timing in
+// src/data/narration-timing.json, then choosing each scene's cut point a
+// beat after that scene's narration finishes — not guessed up front. The
+// creative brief's own scene breakdown (0:00–0:20 / 0:20–0:50 / 0:50–1:15 /
+// 1:15–2:00, a nominal 2:00 total) undershoots how long the full four-scene
+// script actually takes to narrate at a natural, unhurried "premium
+// corporate narrator" pace (~2:18 of speech alone). Rather than either
+// cutting approved narration copy or rushing the voice to an unnatural
+// speaking rate to hit 2:00 exactly, scene durations here follow the real
+// audio, landing the finished film at 2:25 — still "approximately two
+// minutes" per the brief, just not to the second. See storyboard.md.
 // ---------------------------------------------------------------------------
 export const SCENES = {
-  opening: {id: 'opening', durationInSeconds: 12},
-  beginning: {id: 'beginning', durationInSeconds: 21},
-  growth: {id: 'growth', durationInSeconds: 24},
-  success: {id: 'success', durationInSeconds: 22},
-  people: {id: 'people', durationInSeconds: 32},
-  stockyards: {id: 'stockyards', durationInSeconds: 21},
-  conclusion: {id: 'conclusion', durationInSeconds: 19},
+  stockyards: {id: 'stockyards', durationInSeconds: 27},
+  armourBuilding: {id: 'armourBuilding', durationInSeconds: 34},
+  honoringStructure: {id: 'honoringStructure', durationInSeconds: 33},
+  newHome: {id: 'newHome', durationInSeconds: 51},
 } as const;
 
 export type SceneKey = keyof typeof SCENES;
 
 export const SCENE_ORDER: SceneKey[] = [
-  'opening',
-  'beginning',
-  'growth',
-  'success',
-  'people',
   'stockyards',
-  'conclusion',
+  'armourBuilding',
+  'honoringStructure',
+  'newHome',
 ];
 
 export const TOTAL_DURATION_IN_SECONDS = SCENE_ORDER.reduce(
@@ -64,6 +70,7 @@ export const BRAND = {
     white: '#F7F5F1',
     cream: '#EDE7DC',
     gray: '#9AA0B4',
+    sepia: '#3A2A15',
   },
   fonts: {
     display: 'Oswald', // condensed display font — titles, dates, big numbers
@@ -116,83 +123,41 @@ export const STILL_IMAGES = {
 } as const;
 
 // ---------------------------------------------------------------------------
-// Scene 1 — Opening
-// ---------------------------------------------------------------------------
-export const OPENING_TEXT = {
-  title: "Built on Experience. Driven by What's Next.",
-  subtitle: 'U.S. Energy Development Corporation',
-};
-
-// ---------------------------------------------------------------------------
-// Scene 2 — The Beginning
-// ---------------------------------------------------------------------------
-export const BEGINNING_TEXT = {
-  year: '1980',
-  headline: 'A Family Vision Takes Shape',
-};
-
-// ---------------------------------------------------------------------------
-// Scene 3 — Growth Through the Decades
-// ---------------------------------------------------------------------------
-export const TIMELINE_MILESTONES = [
-  {year: '1985', label: 'Appalachian Development'},
-  {year: '1990s', label: 'Multi-State Expansion'},
-  {year: '2014', label: 'Second-Generation Leadership'},
-  {year: '2015', label: 'Growth in Texas'},
-] as const;
-
-// ---------------------------------------------------------------------------
-// Scene 4 — Success and Experience
-// ---------------------------------------------------------------------------
-export const STATISTICS = [
-  {value: '~4,000', label: 'Wells'},
-  {value: '13 States', label: '+ Canada'},
-  {value: 'Billions', label: 'Deployed for Partners'},
-] as const;
-
-export const TRANSFORMATIONAL_YEAR_TEXT = {
-  year: '2025',
-  headline: 'A Transformational Year',
-  subhead: 'Largest Acquisition in Company History',
-};
-
-// ---------------------------------------------------------------------------
-// Scene 5 — The People and Core Values
-// ---------------------------------------------------------------------------
-export const CORE_VALUES = [
-  {
-    name: 'Collaborative',
-    support: 'Strong partnerships begin with strong teams.',
-  },
-  {
-    name: 'Trustworthy & Sincere',
-    support: 'A reputation built one relationship at a time.',
-  },
-  {
-    name: 'Innovative',
-    support: 'Smarter ways to develop every project.',
-  },
-  {
-    name: 'Passionate & Driven',
-    support: 'The work is personal, not just professional.',
-  },
-] as const;
-
-// ---------------------------------------------------------------------------
-// Scene 6 — The Fort Worth Stockyards
+// Scene 1 — The Rise of the Fort Worth Stockyards
 // ---------------------------------------------------------------------------
 export const STOCKYARDS_TEXT = {
-  location: 'Fort Worth, Texas',
-  headline: 'A New Headquarters. The Next Chapter.',
+  title: 'The Historic Fort Worth Stockyards',
 };
 
 // ---------------------------------------------------------------------------
-// Scene 7 — Conclusion
+// Scene 2 — The Armour Building
 // ---------------------------------------------------------------------------
-export const CONCLUSION_TEXT = {
-  years: '45+ Years of Energy and Impact',
-  lineOne: 'Experience Behind Us.',
-  lineTwo: 'Opportunity Ahead.',
+export const ARMOUR_BUILDING_TEXT = {
+  title: 'Preserving History. Building the Future.',
+};
+
+// ---------------------------------------------------------------------------
+// Scene 3 — Honoring the Original Structure
+// ---------------------------------------------------------------------------
+export const HONORING_STRUCTURE_TEXT = {
+  headline: 'History Preserved',
+  beamsSubtitle: 'The Original White Structural Beams',
+  fitnessTitle: 'A Place to Grow',
+  fitnessSupport:
+    'A state-of-the-art fitness center and personal trainer, welcoming Armour Building and U.S. Energy employees alongside the Fort Worth Police Department.',
+};
+
+// ---------------------------------------------------------------------------
+// Scene 4 — A New Home for U.S. Energy
+// ---------------------------------------------------------------------------
+export const NEW_HOME_TEXT = {
+  locationTag: 'Fort Worth Stockyards Headquarters',
+  brandLine: BRAND.name,
+  conferenceTitle: 'Elegant Conference Rooms & Event Spaces',
+  conferenceSupport: 'Where relationships are built and opportunities take shape.',
+  collaborationTitle: 'Investors. Partners. Clients.',
+  closingLineOne: 'Honoring Our Past.',
+  closingLineTwo: 'Building Our Future.',
   website: BRAND.website,
 };
 

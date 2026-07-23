@@ -2,211 +2,116 @@
 
 ## Environment
 
-- Node 22, Remotion 4.0.290, ffmpeg 6.1.1, RHVoice 1.8.0 (+ rhvoice-english).
+- Node 22, Remotion 4.0.290, ffmpeg 6.1.1, RHVoice 1.8.0 (+ rhvoice-english),
+  all installed fresh for this project (`apt-get install ffmpeg rhvoice
+  rhvoice-english`).
 - Rendering runs headless Chrome (Remotion's bundled Chrome Headless
-  Shell). This project's fonts (Oswald, Inter) are downloaded once (via
-  `curl`, which trusts the proxy's CA bundle) into `public/fonts/*.woff2`,
-  then inlined as base64 data URIs directly in
-  `src/styles/fonts-inline.css` (imported by `src/Video.tsx`). Two earlier
-  approaches were tried and rejected:
-  1. `@remotion/google-fonts` (fetches from `fonts.gstatic.com` at render
-     time) — fails outright: this environment's headless Chrome cannot
-     complete a TLS handshake with that host through the local egress
-     proxy (`ERR_CERT_AUTHORITY_INVALID`).
-  2. A local `.woff2` file loaded via the `FontFace` API + `delayRender()`
-     (network-free, but still asynchronous) — worked in isolated `remotion
-     still` tests, but intermittently timed out under full multi-frame
-     concurrent rendering (a slow/contended tab occasionally failed to
-     resolve the font-load promise within the timeout, twice failing a
-     full render partway through, at frames 105 and 866).
-  The base64-inline approach removes the async step entirely — the
-  `@font-face` rule is just parsed synchronously as part of normal
-  stylesheet loading — and had zero failures afterward. Regenerate
-  `fonts-inline.css` if the `.woff2` files ever change:
-  ```bash
-  python3 -c "
-  import base64
-  o = base64.b64encode(open('public/fonts/oswald-variable-latin.woff2','rb').read()).decode()
-  i = base64.b64encode(open('public/fonts/inter-variable-latin.woff2','rb').read()).decode()
-  print(f'@font-face {{ font-family: \"Oswald\"; font-weight: 200 700; src: url(data:font/woff2;base64,{o}) format(\"woff2\"); }}')
-  print(f'@font-face {{ font-family: \"Inter\"; font-weight: 100 900; src: url(data:font/woff2;base64,{i}) format(\"woff2\"); }}')
-  " > src/styles/fonts-inline.css
-  ```
+  Shell). Fonts (Oswald, Inter) are inlined as base64 data URIs in
+  `src/styles/fonts-inline.css` — see the sibling U.S. Energy brand-video
+  project's render-notes for why (font-loading race conditions under
+  concurrent rendering with any async-fetch approach). Unchanged here.
 
 ## Footage processing (FFmpeg)
 
-Original uploads are untouched. Processed copies were generated with:
-
-```bash
-ffmpeg -y -i <source>.mov \
-  -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
-  -c:a aac -b:a 128k \
-  -movflags +faststart \
-  public/footage/<name>.mp4
-```
-
-This re-encodes the phone camera's HEVC/H.265 source into browser- and
-Remotion-friendly H.264, keeps the original 1920×1080 resolution and aspect
-ratio (no cropping/stretching at the file level — framing/crops happen only
-in React/CSS inside the composition), and moves the `moov` atom to the
-front of the file for fast start / reliable seeking during rendering.
-
-Four still frames were extracted from the footage for the Ken Burns
-backdrops used behind the graphics-forward scenes:
-
-```bash
-ffmpeg -y -ss <timestamp> -i public/footage/<clip>.mp4 -frames:v 1 -q:v 2 public/images/<name>.jpg
-```
+The 5 uploaded clips and their H.264 conversions are shared with the
+sibling brand-video project (same HQ shoot); see that project's
+render-notes for the exact `ffmpeg` commands used to produce
+`public/footage/*.mp4` and the 4 derived stills in `public/images/`.
 
 ## Audio pipeline
 
 - `npm run music:placeholder` → `scripts/generate-placeholder-music.sh`
-  synthesizes a soft ambient placeholder bed with `ffmpeg`'s `sine`
-  source filters (no drums, no lead, low-passed) — explicitly a
-  placeholder, not licensed music.
+  synthesizes a soft ambient placeholder bed with `ffmpeg`'s `sine` source
+  filters, now targeting this project's 145s runtime (`DURATION=145` in
+  the script, was 155 in the sibling project's 151s film).
 - `npm run voiceover:fallback` → `scripts/generate-fallback-voiceover.mjs`
-  synthesizes each narration line with `RHVoice-test` (voice "bdl", a US
-  English male CMU-ARCTIC-derived voice — meaningfully more natural than
-  a formant synthesizer, though still not a top-tier neural voice), then
-  uses `ffmpeg`'s `adelay`/`amix`/`loudnorm` filters to place each line at
-  its exact intended timestamp (matching `src/data/content.ts`'s
-  `CAPTIONS` array) inside a single ~151-second track. An earlier version
-  of this script used `espeak-ng`; it was replaced after the user
-  explicitly asked for a more human-sounding voice. A genuinely
-  human-sounding neural voice would require either a real ElevenLabs/
-  OpenAI/Polly API key (none was available in this environment) or a
-  local model like Piper, whose voice files are hosted on Hugging Face —
-  blocked by this environment's egress policy (a 403 on the CONNECT
-  tunnel, not something to route around).
+  synthesizes each of the 16 narration lines with `RHVoice-test` ("bdl"),
+  places them sequentially with a measured, collision-free gap, and pads
+  the result to a target total length. Two constants were tuned for this
+  film versus the sibling project's defaults: `RATE` raised from 95 to 105
+  (a brisker, more confident narrator pace — see storyboard.md for why:
+  the brief's own script runs long for a 2:00 target at a slower pace) and
+  `GAP_SECONDS`/`LEAD_IN_SECONDS` trimmed slightly (0.65→0.5, 3.0→2.0).
+  Both are also overridable via `VO_RATE`/`VO_TOTAL_SECONDS` env vars
+  without editing the script.
+- The measurement process used to arrive at this film's final scene
+  durations: (1) ran the fallback generator once with a generous
+  `VO_TOTAL_SECONDS` ceiling to get the real per-line timing without the
+  script's own safety-margin check failing; (2) read the resulting
+  `src/data/narration-timing.json` to find where each of the 4 scenes'
+  narration actually ends; (3) set `SCENES` durations in `content.ts` to a
+  beat past each of those points; (4) re-ran the generator with
+  `VO_TOTAL_SECONDS` set to the now-final total (145) so the audio file's
+  silence-padding matches exactly.
 
-## Original footage audio removed
+## Bug found and fixed: two Scene 4 video layers rendered blank for most of their on-screen time
 
-Per an explicit follow-up request, all original camera audio was
-physically stripped from the processed footage files (not just muted in
-the mix):
+**Symptom:** spot-checking the first full-quality draft at several
+timestamps (via `ffmpeg -ss <t> -frames:v 1`) showed Scene 4's
+"Investors. Partners. Clients." and "Elegant Conference Rooms & Event
+Spaces" beats displaying nothing but a blank navy background behind their
+text — the office-culture and core-values-wall footage wasn't visible at
+all for most of the time it should have been on screen.
 
-```bash
-ffmpeg -y -i public/footage/<clip>.mp4 -c:v copy -an public/footage/<clip>.mp4
-```
+**Root cause:** `<SafeVideo>` (wrapping Remotion's `<OffthreadVideo>`)
+takes `startFrom`/`endAt` props. Internally, `<OffthreadVideo>` uses these
+to wrap itself in `<Sequence from={-startFrom} durationInFrames={endAt}>`
+(see `node_modules/remotion/dist/cjs/video/OffthreadVideo.js`) — meaning
+the video is only valid/rendered while the *enclosing* frame count (i.e.
+whatever `useCurrentFrame()` returns at the point `<SafeVideo>` is
+rendered) falls inside `[-startFrom, -startFrom + endAt)`. Every video
+layer in Scenes 1-2 of this film (and every video layer in the sibling
+brand-video project) starts at its scene's own frame 0, so `startFrom=0`
+and `endAt=<window length>` happen to describe the right window by
+coincidence. Scene 4 in this film has *four* sequential footage segments
+inside one scene, and the 2nd and 3rd (office culture, core values wall)
+start well after their scene's frame 0 — but were still written with
+`startFrom={0}` and `endAt={<the segment's own span>}`, computed as if the
+segment started at frame 0. That put the actual valid window at the
+*start* of the scene instead of the middle, so the video had already gone
+invalid (rendering nothing) by the time the segment's opacity reached 1.
 
-Every file in `public/footage/` is now video-only. `src/data/content.ts`
-keeps each clip's `volume` at `0` as a defensive no-op / statement of
-intent. The only audio anywhere in the final composition is the
-narration and music layers.
-- `npm run voiceover` → `scripts/generate-voiceover.mjs` calls a real TTS
-  provider (ElevenLabs / OpenAI TTS / Amazon Polly) when credentials are
-  present in `.env`. Not used for this delivered render (no API key was
-  available in this environment) — see README's "Known limitations"
-  section.
+**Fix:** wrapped each footage segment in `Scene4NewHome.tsx` in its own
+top-level `<Sequence from={segmentStart} durationInFrames={segmentSpan}>`.
+This resets `useCurrentFrame()` to 0 at the segment's own start, so
+`startFrom={0}` / `endAt={segmentSpan}` inside it are correct without any
+further arithmetic — `<SafeVideo>` no longer needs to know where in the
+overall scene it sits. Adjacent segments' Sequences overlap by 24 frames
+(`CROSSFADE`) so one can fade out while the next fades in; a small
+`useCrossfade()` hook computes each segment's own fade-in/fade-out from
+its local frame. See the comment above `Scene4NewHome`'s segment constants
+for the fuller explanation.
 
-## A bug fixed during rendering: `playbackRate` + `endAt`
+**Narrower version fixed in Scenes 1-2:** those scenes' single video layer
+does start at frame 0, so the Sequence-wrapping math is directionally
+correct, but `endAt` had been set to the desired *visible* window length
+(226+24=250 for Scene 1's mural clip, 155+25=180 for Scene 2's exterior
+clip) rather than the *source clip's own* length (226 and 155 frames
+respectively) — meaning the video's validity window ended a beat before
+its own crossfade-out had finished, leaving a ~24-frame gap of blank video
+under an already-fading-out opacity layer (much less visually obvious than
+Scene 4's bug, since the crossfade partner layer is already appearing
+underneath by then, but still not technically correct). Fixed by setting
+`endAt` to the source clip's own frame count and having the crossfade-out
+complete exactly as the clip ends, rather than reading past end-of-file or
+leaving a validity gap.
 
-Three scenes intentionally stretch a short video clip across a longer
-on-screen window using Remotion's `playbackRate` prop (slow motion) so a
-handful of seconds of footage can cover the time the storyboard allots it.
-Initial implementation set `endAt` to the **source clip's own frame
-count** (e.g. `309` for a 10.3s@30fps clip). That is wrong: Remotion
-resolves `startFrom`/`endAt` against the **on-screen composition
-timeline**, not the source media's frame count, when `playbackRate != 1`.
-The visible symptom was the clip fading in correctly and then vanishing
-partway through its scene (once the composition frame count passed the
-source's raw frame count). Fix: `endAt` is set to `startFrom + <desired
-on-screen duration in composition frames>` instead — see
-`src/scenes/Scene5People.tsx`, `Scene6Stockyards.tsx`, and
-`Scene7Conclusion.tsx` for the corrected math.
-
-## A bug fixed during rendering: caption / lower-third collision
-
-The optional closed-captions track (bottom-center) and the per-scene
-`LowerThird` component (bottom-left, used for core values and location
-tags) both anchored near the very bottom of the frame and would overlap
-during scenes that show both at once, partially obscuring text under the
-caption's semi-transparent background. Fixed by raising the captions
-track's vertical position (`bottom: 360`) to clear the 340px-tall
-lower-third scrim band in every scene — see `src/components/Captions.tsx`.
-
-## Bug: narration lines audibly overlapping ("talking over each other")
-
-The original fallback voiceover generator placed each narration line at a
-hand-authored fixed timestamp (e.g. line 3 at `13.0s`, line 4 at `22.0s`),
-picked when the script was written based on a rough word-count estimate —
-before any of it had actually been synthesized. Once real audio existed,
-three of the seventeen lines turned out to run longer than the gap to the
-next line's fixed start time (by 0.5–1.8 seconds each), so the next
-line's speech began while the previous one was still playing — audibly
-two voices/lines on top of each other.
-
-Fix: both `scripts/generate-fallback-voiceover.mjs` and
-`scripts/generate-voiceover.mjs` now synthesize each line individually,
-measure its *actual* rendered duration with `ffprobe`, and place lines
-sequentially — `next.start = previous.end + 0.65s` — so overlap is
-impossible by construction regardless of how fast or slow a given voice
-happens to speak. The computed timing is written to
-`src/data/narration-timing.json`, which `src/data/content.ts` imports
-directly for the `CAPTIONS` track (replacing a previously hand-authored,
-now-provably-inaccurate array), and to `voiceover-timestamps.txt`. Verified
-programmatically after the fix (`timing[i].end <= timing[i+1].start` for
-every consecutive pair) before re-rendering.
-
-## Bugs found only in the full render (not caught by spot-check stills)
-
-The first successful full render (151s, 76.6MB) surfaced two more issues
-that isolated `remotion still` frames during development hadn't hit,
-because they only appear when specific scenes' animated elements coincide
-with the (independently-timed) caption track:
-
-1. **Center-screen content colliding with captions.** `Timeline.tsx` and
-   `Statistic.tsx` both vertically centered their content (`top: '50%'`),
-   and Scene 2's year/headline reveal used flex `justifyContent: 'center'`
-   on a full-height `AbsoluteFill`. Each one's label text could reach
-   about halfway into the bottom third of the frame — overlapping the
-   captions track, which appears independently of scene boundaries.
-   Fixed by biasing all three up (`top: '38%'`, or `paddingBottom: 260` on
-   the flex container for Scene 2) so their content stays clear of the
-   caption band regardless of which caption line happens to be showing at
-   the time.
-2. **Scene 7's "45+ Years of Energy and Impact" title never faded out.**
-   `TitleCard` only had a fade-*in*; once shown it stayed at full opacity
-   for the rest of its Sequence. In Scene 1 and Scene 6 that's fine (the
-   parent layer unmounts before anything else would overlap it), but in
-   Scene 7 the closing lines ("Experience Behind Us." / "Opportunity
-   Ahead.") and the closing logo are separate sibling elements timed to
-   appear later in the *same* scene — they rendered on top of the
-   still-visible year title, producing overlapping/double-exposed text.
-   Fixed by adding an optional `holdFrames` prop to `TitleCard` (fades out
-   `holdFrames` after appearing, mirroring `LowerThird`'s pattern) and
-   passing one in `Scene7Conclusion.tsx` so the year title clears before
-   the closing lines begin.
-
-Both were confirmed via `ffmpeg -ss <t> -frames:v 1` spot-checks against
-the actual rendered MP4 (not just `remotion still` previews) at several
-timestamps spanning all seven scenes, then re-verified after the fix
-before re-rendering the final delivered file.
-
-## A bug fixed during rendering: font-load timeout under concurrent render
-
-The first two full-render attempts failed (at frames 105 and 866
-respectively) with a `delayRender()` timeout on the custom font loading,
-evidently an intermittent resource-contention hiccup under
-`Config.setConcurrency(2)` rather than a genuinely broken font file (the
-exact same font-loading code succeeded across a dozen-plus `remotion
-still` invocations while iterating on the composition, and got
-substantially further into the full render on the second attempt).
-Raising the timeout and racing it against a fallback both failed to fully
-resolve it, so the async font-loading step was removed entirely — see the
-"Environment" section above for the base64-inline fix that replaced it.
+**Verified** by re-rendering the draft and spot-checking `ffmpeg -ss
+<t> -frames:v 1` frames across every scene and every crossfade boundary,
+confirming continuous footage (no blank frames) end to end before the
+final full-quality render.
 
 ## Render commands
 
 ```bash
 # Draft (half-resolution, faster, lower quality) — useful for a quick
 # end-to-end sanity check of timing/audio/captions before a full render.
-npx remotion render src/index.ts USEDCBrandVideo out/usedc-brand-video-draft.mp4 \
+npx remotion render src/index.ts ArmourBuildingFilm out/armour-building-film-draft.mp4 \
   --scale=0.5 --jpeg-quality=70 --concurrency=2
 
 # Final, full-quality render — this is the exact command used for this
 # project's delivered MP4.
-npx remotion render src/index.ts USEDCBrandVideo out/usedc-brand-video.mp4
+npx remotion render src/index.ts ArmourBuildingFilm out/armour-building-film.mp4
 ```
 
 `remotion.config.ts` sets the codec (H.264), pixel format (yuv420p, for
@@ -217,8 +122,8 @@ flags required for a standard delivery-quality MP4.
 ## Verifying final duration
 
 ```bash
-ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 out/usedc-brand-video.mp4
+ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1 out/armour-building-film.mp4
 ```
 
-Expected: `duration=151.0...` (2 minutes 31 seconds), inside the requested
-2–3 minute range.
+Expected: `duration=145.0...` (2 minutes 25 seconds). See storyboard.md
+for why this is a little past the brief's nominal "approximately 2:00."

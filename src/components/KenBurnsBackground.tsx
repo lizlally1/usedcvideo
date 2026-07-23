@@ -8,10 +8,17 @@ interface KenBurnsBackgroundProps {
   durationInFrames: number;
   /** "in" zooms slowly in, "out" zooms slowly out. */
   direction?: 'in' | 'out';
-  /** Tint the still navy so graphics on top stay legible; 0 disables it. */
+  /** Tint the still so graphics on top stay legible; 0 disables it. */
   tintOpacity?: number;
   /** Overall opacity of the whole background layer (for subtlety/texture). */
   layerOpacity?: number;
+  /** Overlay tint color; defaults to brand navy. Pass a warm/sepia tone for
+   * "archival photograph" treatments (see Scene1Stockyards). */
+  overlayColor?: string;
+  /** CSS filter applied to the image itself; defaults to a soft blur used
+   * behind graphics-forward scenes. Override for a sepia/desaturated
+   * "historic photo" look. */
+  filter?: string;
 }
 
 /**
@@ -26,6 +33,8 @@ export const KenBurnsBackground: React.FC<KenBurnsBackgroundProps> = ({
   direction = 'in',
   tintOpacity = 0.55,
   layerOpacity = 0.35,
+  overlayColor = colors.navy,
+  filter = 'blur(6px) saturate(0.7)',
 }) => {
   const frame = useCurrentFrame();
   const progress = frame / Math.max(durationInFrames, 1);
@@ -44,12 +53,12 @@ export const KenBurnsBackground: React.FC<KenBurnsBackgroundProps> = ({
           width: '100%',
           height: '100%',
           transform: `scale(${scale}) translateX(${translateX}px)`,
-          filter: 'blur(6px) saturate(0.7)',
+          filter,
         }}
       >
         <SafeImage src={src} />
       </div>
-      <AbsoluteFill style={{backgroundColor: colors.navy, opacity: tintOpacity}} />
+      <AbsoluteFill style={{backgroundColor: overlayColor, opacity: tintOpacity}} />
     </AbsoluteFill>
   );
 };

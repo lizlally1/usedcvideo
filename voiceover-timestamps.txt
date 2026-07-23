@@ -6,36 +6,34 @@ swap in a different narration file, re-run whichever generator script
 produced it so this file and src/data/narration-timing.json (which drives
 the on-screen CAPTIONS track) stay in sync with the actual audio.
 
-[00:03.00 - 00:10.54]  Some companies are built overnight. Others are built over decades — one well, one partnership, one decision at a time.
+[00:02.00 - 00:09.51]  By the late 1800s, the Fort Worth Stockyards had become one of America's most important livestock trading centers.
 
-[00:11.19 - 00:13.11]  This is one of those stories.
+[00:10.01 - 00:17.30]  Railroads transformed Fort Worth into the gateway of the cattle industry, earning the city its legendary reputation as Cowtown.
 
-[00:13.76 - 00:25.29]  In 1980, U.S. Energy Development Corporation started as a family vision — a small operator working the Appalachian basin out of Buffalo, New York.
+[00:17.80 - 00:25.18]  For generations, millions of cattle passed through these historic grounds, helping shape the economy of Texas and the American West.
 
-[00:25.94 - 00:34.60]  Built on hard work. And a simple belief: treat people right, manage risk wisely, and a good idea can grow into something lasting.
+[00:25.68 - 00:33.81]  In the early twentieth century, the Armour Building was constructed to serve Armour and Company, one of the nation's largest meatpacking operations.
 
-[00:35.25 - 00:45.05]  That belief carried the company forward. Through the eighties and nineties, U.S. Energy expanded into Texas, Louisiana, Kansas, and beyond.
+[00:34.31 - 00:43.26]  Built with remarkable craftsmanship and designed to support the thriving livestock industry, the building became an enduring symbol of the Stockyards' industrial legacy.
 
-[00:45.70 - 00:59.30]  In 2014, a second generation of leadership stepped in. By 2015, growth had carried the company to Texas — right as one of the most transformative eras in American energy was taking shape.
+[00:43.76 - 00:55.61]  Even more remarkably, many of the craftsmen whose families originally laid the building's brick generations ago returned decades later to assist in its careful reconstruction during U.S. Energy's renovation.
 
-[00:59.95 - 01:03.08]  Today, that experience speaks for itself.
+[00:56.11 - 00:59.31]  Helping preserve an important piece of Fort Worth history.
 
-[01:03.72 - 01:14.94]  U.S. Energy has invested in, operated, or drilled nearly four thousand wells across thirteen states and Canada — deploying billions on behalf of the company and its partners.
+[00:59.81 - 01:04.95]  Throughout the renovation, preserving the building's historic character remained a guiding principle.
 
-[01:15.59 - 01:21.25]  And in 2025, the company completed the largest acquisition in its history.
+[01:05.45 - 01:13.93]  One of its most distinctive architectural features, the original white structural beams, remain exactly as they were when the building was first constructed.
 
-[01:21.90 - 01:27.57]  But growth was never the whole story. Ask anyone here, and they'll tell you — it's the people.
+[01:14.43 - 01:19.10]  They continue to tell the story of the craftsmanship that has endured for more than a century.
 
-[01:28.22 - 01:34.29]  It's a team that shows up for each other. Collaborative. Sincere. Driven to do the work right.
+[01:19.60 - 01:32.30]  Today, the Armour Building also features a state-of-the-art fitness center with a dedicated personal trainer, welcoming employees of both the Armour Building and U.S. Energy, along with members of the Fort Worth Police Department.
 
-[01:34.94 - 01:46.02]  Investors come first. Partners are treated like family. And every deal, every well, every decision reflects the same values that have guided this company since day one.
+[01:32.80 - 01:40.95]  Today, the Armour Building stands as the proud home of U.S. Energy Development Corporation, a place where history and innovation come together.
 
-[01:46.67 - 01:56.92]  In 2025, that history found a new home. U.S. Energy moved its headquarters into the historic Armour Building, in the Fort Worth Stockyards.
+[01:41.45 - 01:50.23]  More than simply an office, this headquarters serves as a destination for investors, partners, and clients visiting one of Texas' most iconic landmarks.
 
-[01:57.57 - 02:03.67]  A building with its own story of resilience — for a company that has never forgotten where it came from.
+[01:50.73 - 01:59.05]  Elegant conference rooms and versatile event spaces create an environment where relationships are built, ideas are shared, and opportunities take shape.
 
-[02:04.32 - 02:14.44]  Forty-five years in, U.S. Energy is still doing what it's always done: backing good people, taking calculated risks, and building for what's next.
+[01:59.55 - 02:06.67]  As we continue growing, this remarkable building reflects who we are: honoring our heritage while investing boldly in the future.
 
-[02:15.09 - 02:17.10]  The experience is behind them.
-
-[02:17.75 - 02:20.30]  The opportunity is just getting started.
+[02:07.17 - 02:17.97]  We believe this headquarters is more than a workplace. It is a beacon that welcomes clients, inspires employees, and positions U.S. Energy for continued success for generations to come.

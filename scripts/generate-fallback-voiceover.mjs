@@ -42,11 +42,12 @@ const TIMING_OUTPUT_PATH = path.join(ROOT, 'src', 'data', 'narration-timing.json
 const AUDIO_OUTPUT_PATH = path.join(ROOT, 'public', 'audio', 'voiceover.mp3');
 const TIMESTAMPS_TXT_PATH = path.join(ROOT, 'voiceover-timestamps.txt');
 
-const TOTAL_DURATION_SECONDS = 151;
+const TOTAL_DURATION_SECONDS = Number(process.env.VO_TOTAL_SECONDS || 240);
 const VOICE = 'bdl'; // US English male
 const SAMPLE_RATE = 24000;
-const LEAD_IN_SECONDS = 3.0; // silence before the first line starts
-const GAP_SECONDS = 0.65; // breathing room between consecutive lines
+const LEAD_IN_SECONDS = 2.0; // silence before the first line starts
+const GAP_SECONDS = 0.5; // breathing room between consecutive lines
+const RATE = Number(process.env.VO_RATE || 105); // RHVoice speaking rate, 100 = normal
 
 function sh(cmd) {
   return execSync(cmd, {stdio: ['ignore', 'pipe', 'inherit']}).toString();
@@ -81,7 +82,7 @@ function main() {
     const txtPath = path.join(tmpDir, `line-${i}.txt`);
     const wavPath = path.join(tmpDir, `line-${i}.wav`);
     fs.writeFileSync(txtPath, line.text, 'utf-8');
-    sh(`RHVoice-test -p ${VOICE} -R ${SAMPLE_RATE} -r 95 -i "${txtPath}" -o "${wavPath}"`);
+    sh(`RHVoice-test -p ${VOICE} -R ${SAMPLE_RATE} -r ${RATE} -i "${txtPath}" -o "${wavPath}"`);
 
     const duration = ffprobeDuration(wavPath);
     const start = cursor;
